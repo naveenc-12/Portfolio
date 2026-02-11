@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="images/favi.png">
+  <title>Naveen Padikkasu - Developer & Designer</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6; color:#4a4a4a; background:#fafaf8; overflow-x:hidden; }
+    
+    @keyframes fadeInUp { from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:translateY(0)} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes scaleIn { from{opacity:0; transform:scale(0.9)} to{opacity:1; transform:scale(1)} }
+    @keyframes slideInFromLeft { from{opacity:0; transform:translateX(-50px)} to{opacity:1; transform:translateX(0)} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+
+    nav { position:fixed; top:0; width:100%; background:rgba(250,250,248,0.95); backdrop-filter: blur(10px); padding:1.5rem 5%; box-shadow:0 2px 8px rgba(0,0,0,0.04); z-index:1000; display:flex; justify-content:space-between; align-items:center; transition:padding .3s ease; border-bottom: 1px solid #ece8e3; }
+    nav.scrolled { padding:1rem 5%; }
+    .logo { font-size:1.3rem; font-weight:600; color:#023b19; transition:transform .3s ease; letter-spacing:0.5px; }
+    .logo:hover { transform:scale(1.05); }
+    nav ul { list-style:none; display:flex; gap:2.5rem; }
+    nav a { text-decoration:none; color:#4a4a4a; transition:all .3s ease; font-size:.95rem; position:relative; font-weight:500; }
+    nav a::after { content:''; position:absolute; bottom:-5px; left:0; width:0; height:2px; background:#023b19; transition:width .3s ease; }
+    nav a:hover::after { width:100%; }
+    nav a:hover { color:#023b19; }
+
+    .page { display:none; padding-top:80px; animation:fadeIn .5s ease-out; }
+    .page.active { display:block; }
+
+    .hero { min-height:90vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:4rem 5%; background:linear-gradient(135deg,#faf9f7 0%,#f5f1ed 100%); position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; top:-50%; right:-10%; width:500px; height:500px; background:radial-gradient(circle, rgba(200,184,228,0.08) 0%, transparent 70%); border-radius:50%; animation:float 8s ease-in-out infinite; }
+    .hero::after { content:''; position:absolute; bottom:-30%; left:-5%; width:400px; height:400px; background:radial-gradient(circle, rgba(168,213,186,0.08) 0%, transparent 70%); border-radius:50%; animation:float 8s ease-in-out infinite 1s; }
+
+    h1 { font-size:3.5rem; margin-bottom:1rem; color:#2c2c2c; animation:fadeInUp .8s ease-out; font-weight:700; letter-spacing:-1px; }
+    .subheadline { font-size:1.2rem; color:#6b6b6b; margin-bottom:2rem; max-width:600px; animation:fadeInUp .8s ease-out .2s backwards; font-weight:400; line-height:1.8; }
+    .cta-buttons { display:flex; gap:1rem; margin-bottom:4rem; animation:fadeInUp .8s ease-out .4s backwards; justify-content:center; }
+    
+    .btn { padding:.9rem 2.2rem; text-decoration:none; border-radius:50px; transition:all .3s ease; font-size:.95rem; cursor:pointer; border:none; position:relative; overflow:hidden; font-weight:600; letter-spacing:0.3px; }
+    .btn::before { content:''; position:absolute; top:50%; left:50%; width:0; height:0; border-radius:50%; background:rgba(255,255,255,0.2); transform:translate(-50%,-50%); transition:width .6s, height .6s; }
+    .btn:hover::before { width:300px; height:300px; }
+    
+    .btn-primary { background:#023b19; color:white; box-shadow: 0 4px 15px rgba(2,59,25,0.25); }
+    .btn-primary:hover { background:#022f15; transform:translateY(-3px); box-shadow:0 8px 25px rgba(2,59,25,0.35); }
+    
+    .btn-secondary { background:transparent; color:#023b19; border:2px solid #023b19; }
+    .btn-secondary:hover { background:#023b19; color:white; transform:translateY(-3px); box-shadow:0 8px 25px rgba(2,59,25,0.25); }
+
+    .featured-works { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; max-width:1200px; width:100%; margin-top:3rem; }
+    .artwork { position:relative; overflow:hidden; border-radius:15px; aspect-ratio:16/9; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.08); transition:all .4s cubic-bezier(.175,.885,.32,1.275); animation:scaleIn .6s ease-out backwards; background:#f0ebe5; }
+    .artwork img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; display:block; }
+    .artwork:hover img { transform:scale(1.05); }
+    .artwork::after { content:'Click to view'; position:absolute; bottom:0; left:0; right:0; padding:1rem; background:linear-gradient(transparent, rgba(0,0,0,0.5)); color:white; text-align:center; opacity:0; transition:opacity .3s ease; font-weight:500; }
+    .artwork:hover::after { opacity:1; }
+    .artwork:hover { transform:translateY(-10px); box-shadow:0 15px 35px rgba(0,0,0,0.12); }
+
+    /* Lightbox */
+    .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center; animation:fadeIn .3s ease; }
+    .lightbox.active { display:flex; }
+    .lightbox-content { max-width:90%; max-height:90%; position:relative; animation:scaleIn .4s ease; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .lightbox-content img { max-width:100%; max-height:90vh; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,0.5); touch-action:none; }
+
+    .lightbox-close { position:absolute; top:20px; right:20px; font-size:3rem; color:white; cursor:pointer; z-index:2001; width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:rgba(2,59,25,0.7); border-radius:50%; transition:all .3s ease; }
+    .lightbox-close:hover { background:#023b19; transform:rotate(90deg); }
+    .lightbox-nav { position:absolute; top:50%; transform:translateY(-50%); font-size:3rem; color:white; cursor:pointer; background:rgba(2,59,25,0.7); width:60px; height:60px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:all .3s ease; user-select:none; z-index:2001; }
+    .lightbox-nav:hover { background:#023b19; transform:translateY(-50%) scale(1.1); }
+    .lightbox-prev { left:20px; }
+    .lightbox-next { right:20px; }
+
+    .lightbox .lightbox-content img { transition: transform .28s ease, opacity .28s ease; cursor:zoom-in; }
+    .lightbox .lightbox-content img.zoomed { cursor:grab; }
+    .lightbox .lightbox-fade { opacity:0; transform:scale(.98); animation:fadeIn .28s ease forwards; }
+
+    .section { padding:4rem 5%; max-width:1200px; margin:0 auto; }
+    .section h2 { font-size:2.5rem; margin-bottom:3rem; text-align:center; color:#2c2c2c; position:relative; animation:fadeInUp .6s ease-out; font-weight:700; }
+    .section h2::after { content:''; position:absolute; bottom:-15px; left:50%; transform:translateX(-50%); width:50px; height:3px; background:linear-gradient(90deg,#023b19,#c8b8e4); border-radius:2px; }
+    
+    .projects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2rem; }
+    .project-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.06); transition:all .4s cubic-bezier(.175,.885,.32,1.275); cursor:pointer; animation:fadeInUp .6s ease-out backwards; border:1px solid #ece8e3; }
+    .project-thumbnail { width:100%; height:250px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.1rem; position:relative; overflow:hidden; transition:transform .4s ease; font-weight:600; }
+    .project-info { padding:1.5rem; position:relative; z-index:2; }
+    .project-title { font-size:1.3rem; margin-bottom:.5rem; color:#2c2c2c; transition:color .3s ease; font-weight:700; }
+    .project-desc { color:#6b6b6b; font-size:.9rem; }
+    .project-card:hover { transform:translateY(-8px); box-shadow:0 10px 30px rgba(0,0,0,0.1); border-color:#d5cfe8; }
+    .project-card:hover .project-title { color:#023b19; }
+
+    .project-detail { max-width:900px; margin:0 auto; animation:fadeInUp .6s ease-out; }
+    .detail-section { margin-bottom:3rem; animation:fadeInUp .6s ease-out backwards; }
+    .detail-section h3 { font-size:1.4rem; margin-bottom:1rem; color:#023b19; font-weight:700; }
+    .detail-section p { color:#4a4a4a; line-height:1.8; margin-bottom:1rem; }
+    .detail-section ul { margin-left:1.5rem; color:#4a4a4a; }
+    .detail-section li { margin-bottom:.5rem; line-height:1.7; }
+    
+    .process-images { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.5rem; margin-top:1.5rem; }
+    .process-img { aspect-ratio:1; background:linear-gradient(135deg,#f0ebe5 0%,#e8e1d8 100%); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; cursor:pointer; transition:all .3s ease; position:relative; overflow:hidden; border:1px solid #ece8e3; }
+    .process-img img { width:100%; height:100%; object-fit:cover; display:block; border-radius:10px; }
+    .process-img:hover { transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+    
+    .back-btn { display:inline-flex; align-items:center; margin-bottom:2rem; color:#023b19; text-decoration:none; font-size:1rem; transition:all .3s ease; animation:slideInFromLeft .6s ease-out; font-weight:600; }
+    .back-btn:hover { transform:translateX(-5px); color:#022f15; }
+
+    .about-content { max-width:700px; margin:0 auto; line-height:1.8; color:#4a4a4a; }
+    .about-content p { margin-bottom:1.5rem; }
+    
+    .contact-info { margin-top:2rem; padding:1.5rem; background:#f5f1ed; border-radius:10px; animation:scaleIn .6s ease-out .4s backwards; transition:all .3s ease; border-left:4px solid #023b19; }
+    .contact-info h3 { color:#2c2c2c; margin-bottom:1rem; font-weight:700; }
+    .contact-info p { color:#4a4a4a; margin-bottom:.5rem; }
+    
+    .contact-form { max-width:600px; margin:0 auto; }
+    .form-group { margin-bottom:1.5rem; animation:fadeInUp .6s ease-out backwards; }
+    .form-group label { display:block; margin-bottom:.5rem; font-weight:600; color:#2c2c2c; }
+    .form-group input, .form-group textarea { width:100%; padding:.8rem; border:2px solid #ece8e3; border-radius:8px; font-family: 'Segoe UI', sans-serif; font-size:1rem; transition:all .3s ease; background:#fafaf8; }
+    .form-group input:focus, .form-group textarea:focus { outline:none; border-color:#023b19; transform:translateY(-2px); box-shadow:0 5px 15px rgba(2,59,25,0.15); }
+    .form-group textarea { min-height:150px; resize:vertical; }
+    
+    .services-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; margin:2rem 0; }
+    .service-item { padding:1.5rem; background:#f5f1ed; border-radius:10px; text-align:center; transition:all .3s ease; animation:scaleIn .6s ease-out backwards; border:1px solid #ece8e3; }
+    .service-item h3 { color:#2c2c2c; margin-bottom:.5rem; font-weight:700; }
+    .service-item p { color:#6b6b6b; font-size:.9rem; }
+    .service-item:hover { background:#023b19; color:white; transform:translateY(-5px); box-shadow:0 8px 25px rgba(2,59,25,0.2); }
+    .service-item:hover h3, .service-item:hover p { color:white; }
+
+    .skills-section { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; margin:2rem 0; }
+    .skill-category { background:white; padding:1.5rem; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.06); border:1px solid #ece8e3; }
+    .skill-category h3 { color:#023b19; margin-bottom:1rem; font-weight:700; }
+    .skill-tag { display:inline-block; background:#f5f1ed; color:#4a4a4a; padding:.4rem .9rem; border-radius:20px; margin:.3rem; font-size:.85rem; font-weight:500; border:1px solid #ece8e3; }
+
+    @media (max-width:768px) {
+      h1 { font-size:2.5rem; }
+      .subheadline { font-size:1rem; }
+      nav ul { gap:1rem; font-size:.85rem; }
+      .cta-buttons { flex-direction:column; width:100%; }
+      .btn { width:100%; }
+      .lightbox-nav { width:50px; height:50px; font-size:2rem; }
+      .lightbox-close { width:40px; height:40px; font-size:2rem; top:10px; right:10px; }
+      .featured-works { grid-template-columns:repeat(2,1fr); }
+    }
+    
+    @media (max-width:480px) {
+      .featured-works { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <div class="logo">Naveen Padikkasu</div>
+    <ul>
+      <li><a href="#" onclick="showPage('home')">Home</a></li>
+      <li><a href="#" onclick="showPage('portfolio')">Projects</a></li>
+      <li><a href="#" onclick="showPage('about')">About</a></li>
+      <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-label="Image viewer">
+    <span class="lightbox-close" onclick="closeLightbox()" title="Close">&times;</span>
+    <span class="lightbox-nav lightbox-prev" onclick="changeLightboxImage(-1)" title="Previous">‹</span>
+    <div class="lightbox-content" id="lightbox-content" role="document"></div>
+    <span class="lightbox-nav lightbox-next" onclick="changeLightboxImage(1)" title="Next">›</span>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="page active">
+    <div class="hero">
+      <h1>Naveen Padikkasu</h1>
+      <p class="subheadline">Full-stack developer & UI/UX designer. Building interactive experiences with game dev, web design, and creative coding.</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary" onclick="showPage('portfolio')">View My Projects</a>
+        <a href="#" class="btn btn-secondary" onclick="showPage('contact')">Get in Touch</a>
+      </div>
+
+      <div class="featured-works">
+        <div class="artwork" onclick="openLightbox(0)">
+          <img src="images/Figma/Playzo.png" alt="Web Development">
+        </div>
+        <div class="artwork" onclick="openLightbox(1)">
+          <img src="images/Blender/4.jpg" alt="Game Development">
+        </div>
+        <div class="artwork" onclick="openLightbox(2)">
+          <img src="images/Art/10.png" alt="UI/UX Design">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO -->
+  <div id="portfolio" class="page">
+    <div class="section">
+      <h2>Featured Projects</h2>
+      <div class="projects-grid">
+        <div class="project-card" onclick="showProject('vhp')">
+          <div class="project-thumbnail" style="background: linear-gradient(135deg,#a8d5ba 0%,#8ac9a1 100%);">
+             <img src="images/Art/phs.png" alt="Game Development" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">Graphic Designs</h3>
+            <p class="project-desc">Brand & Promotional Design Series</p>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('papfly')">
+          <div class="project-thumbnail" style="background: linear-gradient(135deg,#c8b8e4 0%,#b8a8d4 100%);">
+            <img src="images/Art/adlo.png" alt="Game Development" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">Digital Art</h3>
+            <p class="project-desc">Dynamic endless digital art and illustrations</p>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('trashhunter')">
+          <div class="project-thumbnail" style="background: linear-gradient(135deg,#f5c4a1 0%,#eab891 100%);">
+            <img src="images/Trash/0.jpeg" alt="Game Development" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">2D Games</h3>
+            <p class="project-desc">Educational and Entertainment games</p>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('7wonders')">
+          <div class="project-thumbnail" style="background: linear-gradient(135deg,#d4c5f9 0%,#c8b8e4 100%);">
+            <img src="images/Blender/blender.png" alt="Game Development" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">Blender</h3>
+            <p class="project-desc">3D modeling project using Blender</p>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('portfolio-proj')">
+          <div class="project-thumbnail" style="background: linear-gradient(135deg,#ffd9a8 0%,#f5c4a1 100%);">
+            <img src="images/Figma/Fig.png" alt="Game Development" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div class="project-info">
+            <h3 class="project-title">Figma</h3>
+            <p class="project-desc">Modern UI/UX designs designed with Figma & Framer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project: Virtual Home Preview -->
+  <div id="project-vhp" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Graphic Designs</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>Focused on visual storytelling, strong typography, and impactful compositions that communicate ideas clearly</p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Designs and Posters</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Posters/0.jpg" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Posters/Sao paulo.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Posters/Anirudh.png" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+        <img src="images/GD/Burger copy.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/GD/1000vibes new year poster.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/GD/New Year Post.jpg" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+        <img src="images/Logo/PEC MEDIA HUB LOGO.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Logo/Artboard 1 copy 4.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">        
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Key Features</h3>
+        <ul>
+<li>Visually compelling posters designed to capture attention instantly</li>
+<li>Memorable logo designs built with simplicity and brand clarity</li>
+<li>Strategic social media graphics tailored for audience engagement</li>
+<li>Clean typography and modern layout principles in every design</li>
+<li>Detail-oriented approach ensuring professional and polished visuals</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Adobe Photoshop</span>
+          <span class="skill-tag">Adobe illustrator</span>
+          <span class="skill-tag">Pro Create</span>
+          <span class="skill-tag">Figma</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Interested? Let's connect.</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project: Papfly -->
+  <div id="project-papfly" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Digital Art and Illustrations</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>Digital illustrations crafted using Adobe Illustrator, focusing on clean vector precision and creative visual expression.</p>
+      </div>
+
+            <div class="detail-section">
+        <h3>Illustrations</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Art/10.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Art/6.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Art/Hills.png" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Art/1.jpg" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);"> 
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>illustrations</h3>
+        <ul>
+<li>Custom digital illustrations created using Adobe Illustrator</li>
+<li>Clean vector artwork with precise shapes and smooth scalability</li>
+<li>Strong use of color theory, shading, and composition</li>
+<li>Detailed character, object, and concept illustrations</li>
+<li>Optimized designs suitable for print and digital platforms</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Illustrator</span>
+          <span class="skill-tag">Pro Create</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Let's collaborate!</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project: Trash Hunter -->
+  <div id="project-trashhunter" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Trash Hunter: 2D Game</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>Developed three interactive applications including a 3D home visualization tool, a 2D endless runner game, and an educational environmental awareness game. Each project focuses on immersive user experience, creative gameplay mechanics, and purposeful design.</p>
+        <p>Interactive 3D home models with realistic textures and lighting, Real-time customization of interior design elements and Multiple viewing angles and walkthroughs</p>
+        <p>An engaging 2D endless runner game where players control a paper rocket navigating through dynamic obstacles. Inspired by classic arcade gameplay with modern design sensibilities</p>
+        <p>An educational game designed to promote environmental awareness. Players collect waste items to keep the environment clean, combining fun gameplay with an important message.</p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Game Screenshots</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;"> 
+          <img src="images/Trash/1.jpeg" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Trash/2.jpeg" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Trash/3.jpeg" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Trash/12.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Trash/11.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">        
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Game Features</h3>
+        <ul>
+          <li>Educational environmental messages integrated into gameplay</li>
+          <li>Multiple waste types to collect for learning opportunities</li>
+          <li>Level progression system with increasing challenges</li>
+          <li>Colorful, engaging visual design</li>
+          <li>Sound effects and music for immersive experience</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Unity 3D</span>
+          <span class="skill-tag">C#</span>
+          <span class="skill-tag">Game Design</span>
+          <span class="skill-tag">Environmental Design</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Let's talk about this project!</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project: Blender -->
+  <div id="project-7wonders" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Blender Designs</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>3D product and concept visualizations created in Blender, focused on clean modeling, realistic materials, and studio-style lighting.</p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Game Screenshots</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Blender/wond.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Blender/Petra.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Blender/Chi.png" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Blender/Cat.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Blender/Carnage.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Blender/4.jpg" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Project Details</h3>
+        <ul>
+          <li>High-polygon modeling for architectural accuracy</li>
+          <li>Professional texturing and material creation</li>
+          <li>Realistic lighting and rendering</li>
+          <li>Attention to historical and architectural details</li>
+          <li>Portfolio-quality final renders</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Blender</span>
+          <span class="skill-tag">3D Modeling</span>
+          <span class="skill-tag">Texturing</span>
+          <span class="skill-tag">Rendering</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Get in touch!</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project: Figma -->
+  <div id="project-portfolio-proj" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>UI/UX Designs</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>A modern, responsive UI/UX designs of website designed to showcase my skills, projects, and professional journey. Built with modern design principles and best practices in web development.</p>
+      </div>
+
+            <div class="detail-section">
+        <h3>Game Screenshots</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Figma/Music.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/M2.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Playzo.PNG" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Web.PNG" alt="Game Screenshot 4" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">        
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Design Features</h3>
+        <ul>
+          <li>Clean, minimal aesthetic with pastel color palette</li>
+          <li>Smooth animations and transitions</li>
+          <li>Fully responsive design for all devices</li>
+          <li>Intuitive navigation structure</li>
+          <li>Contact form for inquiries</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Framer</span>
+          <span class="skill-tag">HTML/CSS</span>
+          <span class="skill-tag">JavaScript</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Contact me for web design!</a>
+      </div>
+    </div>
+  </div>
+
+   <!-- Project: Graphic Designs -->
+  <div id="project-portfolio-proj" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Graphic Designs</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>Modern and visually engaging graphic designs showcasing my work in posters, social media creatives, and carousel designs, reflecting strong visual hierarchy, typography, and creative storytelling.</p>
+      </div>
+
+            <div class="detail-section">
+        <h3>Game Screenshots</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Figma/Music.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/M2.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Playzo.PNG" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Web.PNG" alt="Game Screenshot 4" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">        
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Design Features</h3>
+        <ul>
+          <li>Clean, minimal aesthetic with pastel color palette</li>
+          <li>Smooth animations and transitions</li>
+          <li>Fully responsive design for all devices</li>
+          <li>Intuitive navigation structure</li>
+          <li>Contact form for inquiries</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Framer</span>
+          <span class="skill-tag">HTML/CSS</span>
+          <span class="skill-tag">JavaScript</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Contact me for web design!</a>
+      </div>
+    </div>
+  </div>
+
+    <!-- Project: Blender -->
+  <div id="project-portfolio-proj" class="page">
+    <div class="section project-detail">
+      <a href="#" class="back-btn" onclick="showPage('portfolio')">← Back to Projects</a>
+      <h2>Blender</h2>
+
+      <div class="detail-section">
+        <h3>Overview</h3>
+        <p>3D product and concept visualizations created in Blender, focused on clean modeling, realistic materials, and studio-style lighting.</p>
+      </div>
+
+            <div class="detail-section">
+        <h3>Game Screenshots</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem;">
+          <img src="images/Figma/Music.png" alt="Game Screenshot 1" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/M2.png" alt="Game Screenshot 2" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Playzo.PNG" alt="Game Screenshot 3" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+          <img src="images/Figma/Web.PNG" alt="Game Screenshot 4" style="width:100%; height:auto; object-fit:cover; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">        
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Design Features</h3>
+        <ul>
+          <li>Clean, minimal aesthetic with pastel color palette</li>
+          <li>Smooth animations and transitions</li>
+          <li>Fully responsive design for all devices</li>
+          <li>Intuitive navigation structure</li>
+          <li>Contact form for inquiries</li>
+        </ul>
+      </div>
+
+      <div class="detail-section">
+        <h3>Technologies Used</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Framer</span>
+          <span class="skill-tag">HTML/CSS</span>
+          <span class="skill-tag">JavaScript</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:3rem;">
+        <a href="#" class="btn btn-primary" onclick="showPage('contact')">Contact me for web design!</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ABOUT -->
+  <div id="about" class="page">
+    <div class="section about-content">
+      <h2>About Me</h2>
+      <p>I'm a Computer Science student at Panimalar Engineering College in Chennai, India, graduating in 2026. I'm passionate about creating engaging digital experiences through game development, web design, and 3D modeling.</p>
+      
+      <p>With a foundation in multiple programming languages and design tools, I bridge the gap between technical development and creative design. Whether building immersive games, designing intuitive interfaces, or modeling intricate 3D environments, I bring both technical expertise and artistic vision to every project.</p>
+
+      <p>I'm constantly learning, experimenting, and pushing the boundaries of what's possible in interactive media.</p>
+
+      <div style="margin-top:3rem; padding:2rem; background:#f5f1ed; border-radius:12px; border-left:4px solid #023b19;">
+        <h3 style="color:#2c2c2c; margin-bottom:1.5rem; font-weight:700;">Technical Skills</h3>
+        <div class="skills-section">
+          <div class="skill-category">
+            <h3>Programming</h3>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Java</span>
+            <span class="skill-tag">C#</span>
+          </div>
+          <div class="skill-category">
+            <h3>Web Development</h3>
+            <span class="skill-tag">HTML</span>
+            <span class="skill-tag">CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">Bootstrap</span>
+          </div>
+          <div class="skill-category">
+            <h3>Design & Creative</h3>
+            <span class="skill-tag">Figma</span>
+            <span class="skill-tag">Framer</span>
+            <span class="skill-tag">Adobe Photoshop</span>
+            <span class="skill-tag">UI/UX Design</span>
+          </div>
+          <div class="skill-category">
+            <h3>Game & 3D</h3>
+            <span class="skill-tag">Unity 3D</span>
+            <span class="skill-tag">Blender</span>
+            <span class="skill-tag">3D Modeling</span>
+            <span class="skill-tag">Game Design</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-info">
+        <h3>Let's Connect</h3>
+        <p><strong>Email:</strong> naveenpadikasu@gmail.com</p>
+        <p><strong>Phone:</strong> +91 9003657974</p>
+        <p style="margin-top:1.5rem;"><a href="#" class="btn btn-primary" onclick="showPage('contact')">Send Me a Message</a></p>
+      </div>
+    </div>
+  </div>  
+
+  <!-- CONTACT -->
+  <div id="contact" class="page">
+    <div class="section">
+      <h2>Let's Work Together</h2>
+
+      <div class="services-list">
+        <div class="service-item">
+          <h3>Game Development</h3>
+          <p>Create engaging 2D/3D games with Unity</p>
+        </div>
+        <div class="service-item">
+          <h3>Web Design & Dev</h3>
+          <p>Build responsive, modern websites</p>
+        </div>
+        <div class="service-item">
+          <h3>UI/UX Design</h3>
+          <p>Design intuitive user interfaces</p>
+        </div>
+        <div class="service-item">
+          <h3>3D Modeling</h3>
+          <p>Create professional 3D assets</p>
+        </div>
+      </div>
+
+      <form id="contactForm" action="https://formspree.io/f/myzbnajj" method="POST" class="contact-form">
+        <input type="hidden" name="_subject" value="New Portfolio Inquiry from Naveen">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Tell me about your project..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+      </form>
+
+      <p id="form-status" style="margin-top:20px; text-align:center;"></p>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function () {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
+    });
+
+    // Simple page show
+    function showPage(pageId) {
+      const pages = document.querySelectorAll('.page');
+      pages.forEach(page => page.classList.remove('active'));
+      const el = document.getElementById(pageId);
+      if (el) el.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showProject(projectId) { showPage('project-' + projectId); }
+
+    // Contact form
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('form-status');
+      const data = new FormData(e.target);
+      try {
+        const response = await fetch(e.target.action, {
+          method: e.target.method,
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+          status.innerHTML = "Thank you! I'll get back to you soon.";
+          status.style.color = '#023b19';
+          e.target.reset();
+        } else {
+          status.innerHTML = "Oops! Something went wrong.";
+          status.style.color = '#e8a9a0';
+        }
+      } catch (error) {
+        status.innerHTML = "Unable to send. Please try again later.";
+        status.style.color = '#e8a9a0';
+      }
+    });
+  </script>
+
+  <!-- Lightbox Script -->
+  <script>
+  (function(){
+    const lightbox = document.getElementById('lightbox');
+    const content = document.getElementById('lightbox-content');
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+    const closeBtn = document.querySelector('.lightbox-close');
+
+    const galleryImages = Array.from(document.querySelectorAll('.featured-works .artwork img'));
+    let currentIndex = 0;
+
+    function showImage(index) {
+      currentIndex = (index + galleryImages.length) % galleryImages.length;
+      const img = galleryImages[currentIndex];
+      content.innerHTML = '';
+      const imgEl = document.createElement('img');
+      imgEl.src = img.src;
+      imgEl.alt = img.alt;
+      imgEl.style.maxWidth = '100%';
+      imgEl.style.maxHeight = '90vh';
+      imgEl.style.borderRadius = '10px';
+      imgEl.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+      content.appendChild(imgEl);
+    }
+
+    window.openLightbox = (index) => {
+      showImage(index);
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeLightbox = function() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    };
+
+    window.changeLightboxImage = (direction) => {
+      showImage(currentIndex + direction);
+    };
+
+    closeBtn.addEventListener('click', window.closeLightbox);
+    prevBtn.addEventListener('click', () => changeLightboxImage(-1));
+    nextBtn.addEventListener('click', () => changeLightboxImage(1));
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) window.closeLightbox(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'Escape') window.closeLightbox();
+      else if (e.key === 'ArrowLeft') changeLightboxImage(-1);
+      else if (e.key === 'ArrowRight') changeLightboxImage(1);
+    });
+  })();
+  </script>
+</body>
+</html>
